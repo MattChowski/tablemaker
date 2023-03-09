@@ -6,4 +6,9 @@ import eslint from 'vite-plugin-eslint'
 export default defineConfig({
   base: 'tablemaker',
   plugins: [react(), eslint()],
+  resolve: {
+    alias: [{
+      find: '@', replacement: '/src'
+    }]
+  }
 })
