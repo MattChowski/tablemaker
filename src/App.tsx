@@ -3,8 +3,8 @@ import React, { useState, createContext, useRef, useEffect } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Box } from '@mui/material'
 
-import Grid from '@/MainGridComponents/Grid'
-import { GridCell, GridHeader } from '@/MainGridComponents/GridComponents'
+import Grid from '@/grid/Grid'
+import { GridCell, GridHeader } from '@/grid/GridComponents'
 import Sidebar from '@/MainSideBar/Sidebar'
 import { type DataObject } from '@/utilities/utils'
 
@@ -19,7 +19,9 @@ export interface ContextType {
   setFirstColumnIsHeader: React.Dispatch<React.SetStateAction<boolean>>
   setCenterCell: React.Dispatch<React.SetStateAction<boolean>>
   setData: React.Dispatch<React.SetStateAction<null[]>>
-  setColumns: React.Dispatch<React.SetStateAction<Array<ColumnDef<any, unknown>>>>
+  setColumns: React.Dispatch<
+    React.SetStateAction<Array<ColumnDef<any, unknown>>>
+  >
   exportedData: DataObject | null
 }
 
@@ -46,11 +48,15 @@ const App = () => {
 
   const [columns, setColumns] = useState(() => {
     if (savedData) {
-      const newHeaders: Array<ColumnDef<any>> = savedData.headers.map((header, index) => ({
-        id: `${index + 1}`,
-        cell: (info) => <GridCell initialValue='lol' />,
-        header: () => <GridHeader data-id={`${index + 1}`} initialValue={header} />,
-      }))
+      const newHeaders: Array<ColumnDef<any>> = savedData.headers.map(
+        (header, index) => ({
+          id: `${index + 1}`,
+          cell: (info) => <GridCell initialValue='lol' />,
+          header: () => (
+            <GridHeader data-id={`${index + 1}`} initialValue={header} />
+          ),
+        })
+      )
       return newHeaders
     }
     return initialColumns
