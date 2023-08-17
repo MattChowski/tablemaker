@@ -20,7 +20,9 @@ interface GridProps {
 
 const GridTable = styled('table')(() => ({
   border: 0,
-  boxShadow: '0px 0px 25px 0px rgba(0, 0, 0, 0.15)'
+  boxShadow: '0px 0px 25px 0px rgba(0, 0, 0, 0.15)',
+  position: 'relative',
+  zIndex: 9999
 }));
 
 const defaultColumn: Partial<ColumnDef<any>> = {

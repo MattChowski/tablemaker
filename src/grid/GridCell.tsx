@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 import { Box, InputBase } from '@mui/material';
 import { GridCellProps } from '@/types';
@@ -68,7 +69,8 @@ const GridCell = ({ rowIndex, columnId }: GridCellProps) => {
           className='cellValue'
           sx={{
             display: 'flex',
-            alignItems: 'center',
+            flexDirection: 'column',
+            justifyContent: 'center',
             width: '100%',
             minHeight: '30px',
             height: '100%',
@@ -92,10 +94,20 @@ const GridCell = ({ rowIndex, columnId }: GridCellProps) => {
               background: 'rgba(235, 60, 0, 0.05)',
               padding: '0px 8px',
               outline: 'none'
+            },
+            '& h1, h2, h3, h4': {
+              margin: 0
+            },
+            '& ul': {
+              paddingLeft: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
             }
           }}
         >
-          {value && value.startsWith('•') && value.split('•').length ? (
+          <ReactMarkdown>{value}</ReactMarkdown>
+          {/* {value && value.startsWith('•') && value.split('•').length ? (
             <Box
               component='ul'
               sx={{
@@ -119,7 +131,7 @@ const GridCell = ({ rowIndex, columnId }: GridCellProps) => {
             </Box>
           ) : (
             value
-          )}
+          )} */}
         </Box>
       ) : (
         <InputBase

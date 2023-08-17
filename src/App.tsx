@@ -5,9 +5,9 @@ import { Box } from '@mui/material';
 import Grid from '@/grid/Grid';
 import Sidebar from '@/sidebar/Sidebar';
 import { DataObject } from './types';
+import Tips from './components/Tips';
 
 const App = () => {
-  const rawSavedData = localStorage.getItem('tableData');
   const [exportedData, setExportData] = useState<DataObject | null>(null);
 
   return (
@@ -22,9 +22,11 @@ const App = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          flex: '1'
+          flex: '1',
+          position: 'relative'
         }}
       >
+        <Tips />
         <Grid exportedData={exportedData} />
       </Box>
     </Box>

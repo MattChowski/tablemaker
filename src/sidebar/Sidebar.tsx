@@ -77,7 +77,6 @@ const Property: React.FC<PropertyProps> = ({ title, children }) => (
 const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
   const [filename, setFilename] = useState('');
   const {
-    data,
     setData,
     addColumn,
     removeColumn,
@@ -94,7 +93,6 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
     table
   } = useGridStore(
     (state) => ({
-      data: state.data,
       setData: state.setData,
       addColumn: state.addColumn,
       removeColumn: state.removeColumn,

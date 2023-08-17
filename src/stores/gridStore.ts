@@ -50,7 +50,7 @@ const createGridDataState: StateCreator<
   [],
   GridDataState
 > = (set) => ({
-  data: [{}],
+  data: [],
   columns: [
     {
       id: '1'
@@ -91,7 +91,7 @@ const createGridDataState: StateCreator<
   setColumns: (newColumns) => set({ columns: newColumns }),
   addRow: () =>
     set((prevState) => ({
-      data: [...prevState.data, ...prevState.data.slice(-1)]
+      data: [...prevState.data, {}]
     })),
   removeRow: () =>
     set((prevState) => ({

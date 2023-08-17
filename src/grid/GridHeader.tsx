@@ -4,6 +4,8 @@ import { Box, IconButton, InputBase, Popper } from '@mui/material';
 import AlignHorizontalRightRoundedIcon from '@mui/icons-material/AlignHorizontalRightRounded';
 import AlignHorizontalLeftRoundedIcon from '@mui/icons-material/AlignHorizontalLeftRounded';
 import AlignHorizontalCenterRoundedIcon from '@mui/icons-material/AlignHorizontalCenterRounded';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { GridHeaderProps } from '@/types';
 
 const GridHeader: React.FC<GridHeaderProps> = ({ initialValue, ...props }) => {
@@ -11,6 +13,7 @@ const GridHeader: React.FC<GridHeaderProps> = ({ initialValue, ...props }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showAligns, setShowAligns] = useState(false);
   const [align, setAlign] = useState('center');
+  const [headerVisible, setHeaderVisible] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleEnableEdit = () => {
@@ -56,6 +59,10 @@ const GridHeader: React.FC<GridHeaderProps> = ({ initialValue, ...props }) => {
     setAlign('center');
   };
 
+  const handleToggleVisible = () => {
+    setHeaderVisible((prevState) => !prevState);
+  };
+
   return (
     <Box
       onMouseEnter={handleMouseEnter}
@@ -65,7 +72,9 @@ const GridHeader: React.FC<GridHeaderProps> = ({ initialValue, ...props }) => {
         alignItems: 'center',
         justifyContent: align,
         height: '100%',
-        padding: align === 'center' ? '16px 12px' : '16px 0px'
+        padding: align === 'center' ? '16px 12px' : '16px 0px',
+        transition: 'opacity .1s ease',
+        opacity: headerVisible ? '1' : '0'
       }}
     >
       {!isEditing ? (
@@ -90,6 +99,9 @@ const GridHeader: React.FC<GridHeaderProps> = ({ initialValue, ...props }) => {
               </IconButton>
               <IconButton onClick={handleAlignRight}>
                 <AlignHorizontalRightRoundedIcon />
+              </IconButton>
+              <IconButton onClick={handleToggleVisible}>
+                {headerVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
               </IconButton>
             </>
           </Popper>
