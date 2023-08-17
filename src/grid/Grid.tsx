@@ -1,42 +1,82 @@
-/* eslint-disable react/jsx-key */
-import React, { useContext, forwardRef } from 'react'
+import { useEffect, useRef } from 'react';
+import { shallow } from 'zustand/shallow';
 
-import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table'
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  ColumnDef
+} from '@tanstack/react-table';
 
-import { GridCell, GridTable } from './GridComponents'
-import { type ContextType, TableContext } from '@/App'
-import { Box } from '@mui/material'
-import { type DataObject } from '@/utilities/utils'
+import { Box, styled } from '@mui/material';
+import type { DataObject } from '@/types';
+import GridCell from './GridCell';
+import GridHeader from './GridHeader';
+import { useGridStore } from '@/stores/gridStore';
 
 interface GridProps {
-  exportedData: DataObject | null
+  exportedData: DataObject | null;
 }
 
-const Grid = forwardRef<HTMLDivElement, GridProps>(({ exportedData }, ref) => {
-  const { data, columns } = useContext(TableContext) as ContextType
+const GridTable = styled('table')(() => ({
+  border: 0,
+  boxShadow: '0px 0px 25px 0px rgba(0, 0, 0, 0.15)'
+}));
 
-  const rawSavedData = localStorage.getItem('tableData')
-  const savedData: DataObject = rawSavedData ? JSON.parse(rawSavedData) : null
+const defaultColumn: Partial<ColumnDef<any>> = {
+  cell: ({ row: { index }, column: { id } }) => (
+    <GridCell rowIndex={index} columnId={id} />
+  ),
+  header: () => <GridHeader data-id='0' initialValue='Header' />
+};
+
+const Grid = ({ exportedData }: GridProps) => {
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  const { data, columns, setTable, firstColumnIsHeader, setTableRef } =
+    useGridStore(
+      (state) => ({
+        columns: state.columns,
+        data: state.data,
+        setData: state.setCellData,
+        setTable: state.setTable,
+        firstColumnIsHeader: state.firstColumnIsHeader,
+        setTableRef: state.setTableRef
+      }),
+      shallow
+    );
 
   const table = useReactTable({
     data,
     columns,
+    defaultColumn,
     columnResizeMode: 'onChange',
-    getCoreRowModel: getCoreRowModel(),
-  })
+    getCoreRowModel: getCoreRowModel()
+  });
+
+  useEffect(() => {
+    setTable(table);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (tableRef.current) {
+      setTableRef(tableRef);
+    }
+  }, [setTableRef]);
 
   return (
     <Box
-      ref={ref}
+      ref={tableRef}
       sx={{
-        padding: '25px',
+        padding: '25px'
       }}
     >
       <GridTable
         {...{
           style: {
-            width: table.getCenterTotalSize(),
-          },
+            width: table.getCenterTotalSize()
+          }
         }}
       >
         <thead>
@@ -48,16 +88,23 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({ exportedData }, ref) => {
                     key: header.id,
                     colSpan: header.colSpan,
                     style: {
-                      width: header.getSize(),
-                    },
+                      width: header.getSize()
+                    }
                   }}
                 >
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   <div
                     {...{
                       onMouseDown: header.getResizeHandler(),
                       onTouchStart: header.getResizeHandler(),
-                      className: `resizer ${header.column.getIsResizing() ? 'isResizing' : ''}`,
+                      className: `resizer ${
+                        header.column.getIsResizing() ? 'isResizing' : ''
+                      }`
                     }}
                   />
                 </th>
@@ -69,33 +116,41 @@ const Grid = forwardRef<HTMLDivElement, GridProps>(({ exportedData }, ref) => {
           {table.getRowModel().rows.map((row, rowIndex) => (
             <tr key={row.id}>
               {row.getVisibleCells().map((cell, cellIndex) => (
-                <GridCell
-                  initialValue={
-                    exportedData?.rows[rowIndex]?.values[cellIndex] ||
-                    savedData?.rows?.[rowIndex]?.values[cellIndex] ||
-                    ''
-                  }
-                  data-rowIndex={rowIndex}
-                  data-cellIndex={cellIndex}
+                <Box
+                  component='td'
+                  key={cell.id}
+                  data-rowindex={rowIndex}
+                  data-cellidex={cellIndex}
                   data-column={`column-${cell.column.id}`}
-                  {...{
-                    key: cell.id,
-
-                    className: `column-${cell.column.id}`,
-                    style: {
-                      width: cell.column.getSize(),
-                    },
+                  className={`column-${cell.column.id}`}
+                  sx={{
+                    ...(firstColumnIsHeader && {
+                      '&.column-1': {
+                        color: '#666666',
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase',
+                        borderRight: '1px solid #ddd',
+                        '& > div': {
+                          fontWeight: '500',
+                          fontSize: '16px',
+                          textAlign: 'right',
+                          justifyContent: 'right'
+                        }
+                      }
+                    })
                   }}
-                />
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Box>
               ))}
             </tr>
           ))}
         </tbody>
       </GridTable>
     </Box>
-  )
-})
+  );
+};
 
-Grid.displayName = 'Grid'
+Grid.displayName = 'Grid';
 
-export default Grid
+export default Grid;

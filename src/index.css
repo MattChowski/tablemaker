@@ -1,90 +1,100 @@
 @font-face {
-	font-family: 'Good Headline Pro Medium';
-	src: url('./fonts/GoodHeadlinePro Medium Regular.ttf') format('truetype');
+  font-family: 'Good Headline Pro Medium';
+  src: url('./assets/fonts/GoodHeadlineProMediumRegular.ttf') format('truetype');
 }
 
 @font-face {
-	font-family: 'Good Headline Pro Regular';
-	src: url('./fonts/GoodHeadlinePro Regular.otf') format('opentype');
+  font-family: 'Good Headline Pro';
+  src: url('./assets/fonts/GoodHeadlineProRegular.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Good Pro Regular';
+  src: url('./assets/fonts/GoodProRegular.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Good Pro Medium';
+  src: url('./assets/fonts/GoodProMedium.otf') format('opentype');
 }
 
 * {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html {
-	font-family: sans-serif;
-	font-size: 14px;
+  font-family: sans-serif;
+  font-size: 14px;
 }
 
 body {
-	margin: 0;
+  margin: 0;
 }
 
 table,
 .divTable {
-	border-collapse: collapse;
-	width: fit-content;
+  border-collapse: collapse;
+  width: fit-content;
 }
 
 .tr {
-	display: flex;
+  display: flex;
 }
 
 tr,
 .tr {
-	width: fit-content;
-	height: 30px;
+  width: fit-content;
+  height: 30px;
 }
 
 tr:nth-child(odd) {
-	background: #fff;
+  background: #fff;
 }
 
 tr:nth-child(even) {
-	background: #fafafa;
+  background: #fafafa;
 }
 
 th,
 .th {
-	position: relative;
-	height: 30px;
-	padding: 0;
-	border-bottom: 1px solid #ddd;
-	background: white;
+  position: relative;
+  height: 30px;
+  padding: 0;
+  border-bottom: 1px solid #ddd;
+  background: white;
 }
 
 td,
 .td {
-	height: 30px;
+  height: 30px;
 }
 
 .resizer {
-	position: absolute;
-	right: 6px;
-	top: 50%;
-	transform: translateY(-50%);
-	height: 70%;
-	width: 5px;
-	background: rgba(235, 60, 0, 0.5);
-	transition: 0.2s ease;
-	border-radius: 100px;
-	cursor: col-resize;
-	user-select: none;
-	touch-action: none;
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 70%;
+  width: 5px;
+  background: rgba(235, 60, 0, 0.5);
+  transition: 0.2s ease;
+  border-radius: 100px;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
 }
 
 .resizer.isResizing {
-	background: rgba(235, 60, 0, 1);
-	opacity: 1;
+  background: rgba(235, 60, 0, 1);
+  opacity: 1;
 }
 
 @media (hover: hover) {
-	.resizer {
-		opacity: 0;
-	}
+  .resizer {
+    opacity: 0;
+  }
 
-	*:hover > .resizer {
-		opacity: 1;
-	}
+  *:hover > .resizer {
+    opacity: 1;
+  }
 }

@@ -1,5 +1,7 @@
-import React, { useContext, useState } from 'react'
-import { toBlob } from 'html-to-image'
+/* eslint-disable react-hooks/rules-of-hooks */
+import React, { useState } from 'react';
+import { shallow } from 'zustand/shallow';
+import { toBlob } from 'html-to-image';
 
 import {
   Box,
@@ -13,33 +15,33 @@ import {
   TextField,
   type ButtonProps,
   IconButton,
-  Divider,
-} from '@mui/material'
-import RemoveIcon from '@mui/icons-material/Remove'
-import AddIcon from '@mui/icons-material/Add'
-import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
-import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined'
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
-import { type ColumnDef } from '@tanstack/react-table'
+  Divider
+} from '@mui/material';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 
-import { GridCell, GridHeader } from '@/grid/GridComponents'
-import { type ContextType, TableContext } from '@/App'
-import { type DataObject, getExportData } from '@/utilities/utils'
+import type { DataObject } from '@/types';
+import { useGridStore } from '@/stores/gridStore';
+import { ColumnDef } from '@tanstack/react-table';
+import GridHeader from '@/grid/GridHeader';
 
 interface SidebarProps {
-  exportedData: DataObject | null
-  setExportData: React.Dispatch<React.SetStateAction<DataObject | null>>
+  exportedData: DataObject | null;
+  setExportData: React.Dispatch<React.SetStateAction<DataObject | null>>;
 }
 
 interface PropertyProps {
-  title: string
-  children: React.ReactNode
+  title: string;
+  children: React.ReactNode;
 }
 
 const StyledIconButton = styled(IconButton)(() => ({
   flex: '1',
-  borderRadius: '4px',
-}))
+  borderRadius: '4px'
+}));
 
 const StyledButton = styled(Button)<ButtonProps>(() => ({
   color: 'rgba(235, 60, 0, 1)',
@@ -50,171 +52,195 @@ const StyledButton = styled(Button)<ButtonProps>(() => ({
   border: '1px solid rgba(235, 60, 0, 1)',
   borderRadius: '2px',
   '&: hover': {
-    background: 'rgba(235, 60, 0, 0.2)',
+    background: 'rgba(235, 60, 0, 0.2)'
   },
   '&:focus': {
-    outline: 'none',
-  },
-})) as typeof Button
+    outline: 'none'
+  }
+})) as typeof Button;
 
 const StyledPropTitle = styled(Typography)(() => ({
   fontFamily: 'Good Headline Pro Medium',
   fontSize: '14px',
   letterSpacing: '2px',
   color: 'rgba(235, 60, 0, 1)',
-  textTransform: 'uppercase',
-}))
+  textTransform: 'uppercase'
+}));
 
 const Property: React.FC<PropertyProps> = ({ title, children }) => (
   <Box>
     <StyledPropTitle>{title}</StyledPropTitle>
     {children}
   </Box>
-)
+);
 
 const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
+  const [filename, setFilename] = useState('');
   const {
+    data,
+    setData,
+    addColumn,
+    removeColumn,
+    setColumns,
+    addRow,
+    removeRow,
     tableRef,
     centerCell,
     cellPadding,
     firstColumnIsHeader,
     setFirstColumnIsHeader,
     setCenterCell,
-    setData,
-    setColumns,
     setCellPadding,
-  } = useContext(TableContext) as ContextType
-  const [filename, setFilename] = useState('')
+    table
+  } = useGridStore(
+    (state) => ({
+      data: state.data,
+      setData: state.setData,
+      addColumn: state.addColumn,
+      removeColumn: state.removeColumn,
+      setColumns: state.setColumns,
+      addRow: state.addRow,
+      removeRow: state.removeRow,
+      table: state.table,
+      tableRef: state.tableRef,
+      centerCell: state.centerCell,
+      cellPadding: state.cellPadding,
+      firstColumnIsHeader: state.firstColumnIsHeader,
+      setFirstColumnIsHeader: state.setFirstColumnIsHeader,
+      setCenterCell: state.setCenterCell,
+      setCellPadding: state.setCellPadding
+    }),
+    shallow
+  );
 
   const handleAddColumn = () => {
-    if (setColumns == null) return
-
-    setColumns((prevState) => [
-      ...prevState,
-      {
-        id: `${prevState.length + 1}`,
-        cell: (info) => info.getValue(),
-        header: () => <GridHeader data-id={`${prevState.length + 1}`} />,
-      },
-    ])
-  }
+    addColumn();
+  };
 
   const handleRemoveColumn = () => {
-    if (setColumns == null) return
-
-    setColumns((prevState) => {
-      if (prevState.length > 1) {
-        const newColumns = prevState.slice(0, -1)
-        return newColumns
-      }
-      return prevState
-    })
-  }
+    removeColumn();
+  };
 
   const handleAddRow = () => {
-    if (setData == null) return
-
-    setData((prevState) => [...prevState, null])
-  }
+    addRow();
+  };
 
   const handleRemoveRow = () => {
-    if (setData == null) return
-
-    setData((prevState) => {
-      if (prevState.length > 1) {
-        const newColumns = prevState.slice(0, -1)
-        return newColumns
-      }
-
-      return prevState
-    })
-  }
+    removeRow();
+  };
 
   const handleDownload = () => {
     if (tableRef?.current) {
       toBlob(tableRef.current)
         .then((blob) => {
           if (blob) {
-            const hiddenLink = document.createElement('a')
-            hiddenLink.href = URL.createObjectURL(blob)
-            hiddenLink.target = '_blank'
-            hiddenLink.download = 'table.png'
-            hiddenLink.click()
+            const hiddenLink = document.createElement('a');
+            hiddenLink.href = URL.createObjectURL(blob);
+            hiddenLink.target = '_blank';
+            hiddenLink.download = 'table.png';
+            hiddenLink.click();
           }
 
-          return true
+          return true;
         })
         .catch((error) => {
-          console.log(error)
-        })
+          console.log(error);
+        });
     }
-  }
+  };
 
   const handleFirstColumnHeader = () => {
-    if (setFirstColumnIsHeader == null) return
-    setFirstColumnIsHeader(!firstColumnIsHeader)
-  }
+    if (setFirstColumnIsHeader == null) return;
+    setFirstColumnIsHeader(!firstColumnIsHeader);
+  };
 
   const handleCenterCell = () => {
-    if (setCenterCell == null) return
-    setCenterCell(!centerCell)
-  }
+    if (setCenterCell == null) return;
+    setCenterCell(!centerCell);
+  };
 
   const handleChangeCellPadding = (event: Event, value: number | number[]) => {
-    if (setCellPadding == null) return
+    if (setCellPadding == null) return;
 
-    setCellPadding(value as number)
-  }
+    setCellPadding(value as number);
+  };
 
-  const getTableData = () => {
-    if (tableRef?.current) {
-      const data = getExportData(tableRef)
-      localStorage.setItem('tableData', JSON.stringify(data))
+  const handleResetTable = () => {
+    localStorage.removeItem('tableData');
+  };
 
-      const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-        JSON.stringify(data)
-      )}`
-      const link = document.createElement('a')
-      link.href = jsonString
-      link.download = `${filename || 'table-data'}.json`
-      link.click()
-    }
-  }
+  const handleExportJson = () => {
+    if (!tableRef?.current) return;
 
-  const loadData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const headers: Array<string | null> = [];
+    const rows: Record<string, string>[] = [];
+
+    const headersElement = tableRef.current.querySelectorAll('th');
+    headersElement.forEach((header) => {
+      headers.push(header.textContent || null);
+    });
+
+    table?.getRowModel().rows.forEach((row) => {
+      rows.push(row.original);
+    });
+
+    const result: DataObject = {
+      headers,
+      rows,
+      dateCreated: Date.now()
+    };
+
+    console.log({ result });
+
+    localStorage.setItem('tableData', JSON.stringify(result));
+
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(result)
+    )}`;
+    const link = document.createElement('a');
+    link.href = jsonString;
+    link.download = `${filename || 'table-data'}.json`;
+    link.click();
+  };
+
+  const handleLoadData = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files != null) {
-      const fileReader = new FileReader()
-      fileReader.readAsText(event.target.files[0])
+      const fileReader = new FileReader();
+      fileReader.readAsText(event.target.files[0]);
       fileReader.onload = (e) => {
         if (typeof e.target?.result === 'string') {
-          const loadedData: DataObject = JSON.parse(e.target?.result)
-          loadedData.dateCreated = Date.now()
+          const loadedData: DataObject = JSON.parse(e.target?.result);
+          loadedData.dateCreated = Date.now();
 
           const newHeaders: Array<ColumnDef<any>> = loadedData.headers.map(
             (header, index) => ({
               id: `${index + 1}`,
-              cell: (info) => <GridCell initialValue='lol' />,
               header: () => (
-                <GridHeader data-id={`${index + 1}`} initialValue={header} />
-              ),
+                <GridHeader
+                  data-id={`${index + 1}`}
+                  initialValue={header || null}
+                />
+              )
             })
-          )
+          );
+
+          console.log({ loadedData });
 
           if (setColumns != null && setData != null) {
-            setColumns(newHeaders)
-            setData(Array(loadedData.rows.length).fill(null))
-            setExportData(loadedData)
+            setColumns(newHeaders);
+            setData(loadedData.rows);
+            setExportData(loadedData);
           }
         }
-      }
+      };
     }
-  }
+  };
 
   const handleFilenameChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFilename(e.target.value)
-  }
+    setFilename(e.target.value);
+  };
 
   return (
     <Box
@@ -226,7 +252,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
         height: '100vh',
         borderRight: '1px solid #eee',
         padding: '16px',
-        gap: '24px',
+        gap: '24px'
       }}
     >
       <Property title='Columns'>
@@ -236,7 +262,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
           divider={<Divider orientation='vertical' flexItem />}
           justifyContent='space-around'
           sx={{
-            marginTop: '12px',
+            marginTop: '12px'
           }}
         >
           <StyledIconButton onClick={handleRemoveColumn}>
@@ -254,7 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
           divider={<Divider orientation='vertical' flexItem />}
           justifyContent='space-around'
           sx={{
-            marginTop: '12px',
+            marginTop: '12px'
           }}
         >
           <StyledIconButton onClick={handleRemoveRow}>
@@ -272,7 +298,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
           direction='row'
           alignItems='center'
           sx={{
-            marginTop: '12px',
+            marginTop: '12px'
           }}
         >
           <RemoveIcon />
@@ -288,7 +314,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
       <Property title='Cell Properties'>
         <Stack
           sx={{
-            marginTop: '12px',
+            marginTop: '12px'
           }}
         >
           <FormControlLabel
@@ -298,8 +324,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
                 onChange={handleFirstColumnHeader}
                 sx={{
                   '&.Mui-checked': {
-                    color: 'rgba(235, 60, 0, 1)',
-                  },
+                    color: 'rgba(235, 60, 0, 1)'
+                  }
                 }}
               />
             }
@@ -312,8 +338,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
                 onChange={handleCenterCell}
                 sx={{
                   '&.Mui-checked': {
-                    color: 'rgba(235, 60, 0, 1)',
-                  },
+                    color: 'rgba(235, 60, 0, 1)'
+                  }
                 }}
               />
             }
@@ -324,14 +350,14 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
 
       <Box
         sx={{
-          marginTop: 'auto',
+          marginTop: 'auto'
         }}
       >
         <Property title='Save/Load'>
           <Stack
             spacing={1}
             sx={{
-              marginTop: '12px',
+              marginTop: '12px'
             }}
           >
             <TextField
@@ -342,7 +368,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
               variant='outlined'
             />
             <StyledButton
-              onClick={getTableData}
+              onClick={handleExportJson}
               endIcon={<FileDownloadOutlinedIcon />}
             >
               Export Data
@@ -352,7 +378,13 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
               endIcon={<FileUploadOutlinedIcon />}
             >
               Load from file
-              <input type='file' hidden onChange={loadData} />
+              <input type='file' hidden onChange={handleLoadData} />
+            </StyledButton>
+            <StyledButton
+              onClick={handleResetTable}
+              endIcon={<FileUploadOutlinedIcon />}
+            >
+              Reset Table
             </StyledButton>
           </Stack>
         </Property>
@@ -361,7 +393,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
         <Stack
           spacing={1}
           sx={{
-            marginTop: '12px',
+            marginTop: '12px'
           }}
         >
           <StyledButton
@@ -373,7 +405,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setExportData, exportedData }) => {
         </Stack>
       </Property>
     </Box>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
